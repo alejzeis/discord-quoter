@@ -1,0 +1,25 @@
+{
+  "name": "discord-quoter",
+  "version": "1.0.0",
+  "description": "A Friendly Discord bot that quotes noteable messages",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jython234/discord-quoter.git"
+  },
+  "author": "jython234",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jython234/discord-quoter/issues"
+  },
+  "homepage": "https://github.com/jython234/discord-quoter#readme",
+  "dependencies": {
+    "discord.js": "^11.5.0",
+    "leveldown": "^5.0.3",
+    "levelup": "^4.0.1",
+    "yamljs": "^0.3.0"
+  }
+}
