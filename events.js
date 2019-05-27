@@ -3,7 +3,7 @@ let dbhelp = require("./db.js");
 let os = require("os");
 
 const software = "discord-quoter";
-const version = "2.1.0";
+const version = "2.1.1";
 const author = "jython234";
 
 function onReactionAdded(config, db, messageReaction, user) {
@@ -13,8 +13,13 @@ function onReactionAdded(config, db, messageReaction, user) {
         // Don't allow quoting ourself
         if(messageReaction.message.member.user.username === config.username) return;
 
+        if(messageReaction.count > 1) {
+            messageReaction.remove(user);
+            return;
+        }
+
         let name = "\"" + messageReaction.message.member.displayName + "\"";
-        dbhelp.insertPinnedMessage(db, messageReaction.message.id, messageReaction.message.author.id, messageReaction.message.member.displayName, messageReaction.message.cleanContent).then((msgId) => {
+        dbhelp.insertPinnedMessage(db, user.id, messageReaction.message.id, messageReaction.message.author.id, messageReaction.message.member.displayName, messageReaction.message.cleanContent).then((msgId) => {
             messageReaction.message.channel.send("<@" + user.id + ">, message quoted with ID " + msgId);
         }).catch((err) => {
             messageReaction.message.channel.send("<@" + user.id + ">, failed to quote message: Database I/O error");
@@ -28,10 +33,22 @@ function onReactionRemoved(config, db, messageReaction, user) {
     if(messageReaction.emoji.name === config.reactionName) {
         // try to un-Quote this message
 
-        dbhelp.removePinnedMessageBySnowflake(db, messageReaction.message.id).then(() => {
-            messageReaction.message.channel.send("<@" + user.id + ">, deleted quote.");
+        dbhelp.findQuoteBySnowflake(db, messageReaction.message.id).then((doc) => {
+            if(!doc) return;
+
+            if(doc.quoter === user.id) {
+                dbhelp.removePinnedMessageBySnowflake(db, messageReaction.message.id).then(() => {
+                    messageReaction.message.channel.send("<@" + user.id + ">, deleted quote.");
+                }).catch((err) => {
+                    console.error("Error while trying to delete quoted message via reaction removal");
+                    console.error(err);
+                });
+            } else {
+                // Ignore
+                console.log("Ignored.");
+            }
         }).catch((err) => {
-            console.error("Error while trying to delete quoted message via reaction removal");
+            console.error("Error while processing reaction removal event:");
             console.error(err);
         });
     }
@@ -51,7 +68,7 @@ function onMessage(db, msg) {
                 if (!message)
                     msg.reply("Invalid Snowflake");
                 else {
-                    dbhelp.insertPinnedMessage(db, message.id, message.author.id, message.member.displayName, message.cleanContent).then((quoteId) => {
+                    dbhelp.insertPinnedMessage(db, msg.author.id, message.id, message.author.id, message.member.displayName, message.cleanContent).then((quoteId) => {
                         msg.reply("message quoted with ID " + value);
                     }).catch((err) => {
                         msg.reply("failed to quote message: Database I/O error");

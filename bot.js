@@ -52,6 +52,7 @@ try {
 
 // Load database
 let mongoClient = new mongodb.MongoClient(config.dbUrl);
+var client;
 
 mongoClient.connect(err => {
     if(err) {
@@ -64,7 +65,7 @@ mongoClient.connect(err => {
         // Load nextId value
         dbhelp.loadNextId(db).then(() => {
             // Connect to discord
-            let client = new Discord.Client();
+            client = new Discord.Client();
 
             client.on("ready", () => {
                 console.log("Connected to Discord as " + client.user.tag);
@@ -89,3 +90,15 @@ mongoClient.connect(err => {
         });
     }
 });
+
+function shutdownHook() {
+    client.destroy();
+    console.log("Disconnected from discord.");
+
+    mongoClient.close().then(() => {
+        console.log("Disconnected from Mongo");
+    });
+}
+
+process.on("SIGTERM", shutdownHook);
+process.on("SIGINT", shutdownHook)

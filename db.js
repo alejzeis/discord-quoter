@@ -45,13 +45,14 @@ function updateNextId(collection) {
     });
 }
 
-function insertPinnedMessage(db, snowflake, senderId, sender, content) {
+function insertPinnedMessage(db, quoter, snowflake, senderId, sender, content) {
     return new Promise((resolve, reject) => {
         let collection = db.collection("quotes");
         let metaCollection = db.collection("metadata");
         let quoteId = nextId;
 
         collection.insertOne({
+            quoter: quoter,
             snowflake: snowflake,
             quoteId: quoteId,
             senderId: senderId,
@@ -106,6 +107,19 @@ function findQuoteById(db, quoteId) {
     });
 }
 
+function findQuoteBySnowflake(db, snowflake) {
+    return new Promise((resolve, reject) => {
+        let collection = db.collection("quotes");
+
+        collection.findOne({
+            snowflake: snowflake
+        }, (err, result) => {
+            if(err) reject(err);
+            else resolve(result);
+        });
+    });
+}
+
 function findRandomQuoteAny(db) {
     return new Promise((resolve, reject) => {
        let collection = db.collection("quotes");
@@ -128,6 +142,7 @@ module.exports = {
     removePinnedMessage: removePinnedMessage,
     removePinnedMessageBySnowflake: removePinnedMessageBySnowflake,
     findQuoteById: findQuoteById,
+    findQuoteBySnowflake: findQuoteBySnowflake,
     findRandomQuoteAny: findRandomQuoteAny
 };
 
