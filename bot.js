@@ -73,7 +73,7 @@ mongoClient.connect(err => {
 
 
             // https://github.com/AnIdiotsGuide/discordjs-bot-guide/blob/master/coding-guides/raw-events.md
-            client.on('raw', (packet) => onRawDiscord(client, packet));
+            //client.on('raw', (packet) => onRawDiscord(client, packet));
 
             client.on("messageReactionAdd", (messageReaction, user) => eventHandlers.onReactionAdded(config, db, messageReaction, user));
 
