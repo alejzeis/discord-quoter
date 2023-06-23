@@ -18,7 +18,7 @@
   "homepage": "https://github.com/jython234/discord-quoter#readme",
   "dependencies": {
     "discord.js": "^12.5.1",
-    "mongodb": "^3.2.5",
+    "mongodb": "^3.7.4",
     "yamljs": "^0.3.0"
   }
 }
